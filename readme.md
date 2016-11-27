@@ -21,7 +21,7 @@ $ php scli model name_your_model
 ```
 or 
 ```sh
-$ php scli c name_your_model
+$ php scli m name_your_model
 ```
 
 ### Creating Controller and Model
