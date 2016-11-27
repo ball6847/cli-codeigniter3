@@ -26,7 +26,7 @@ $ php scli c name_your_model
 
 ### Creating Controller and Model
 ```sh
-$ php scli cm model name
+$ php scli cm name
 ```
 
 ### License
