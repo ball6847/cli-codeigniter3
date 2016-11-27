@@ -10,6 +10,8 @@ else if ($argv[1] == "cm") {
     SCli::createController($argv);
     SCli::createModel($argv);
 }
+else if ($argv[1] == "mi" || $argv[1] == "migration")
+    SCli::createMigration($argv);
 else 
     echo "Parameter not allowed\n";
 
@@ -18,6 +20,7 @@ class SCli
     private static $pathController = "application/controllers/";
     private static $pathView = "application/views/";
     private static $pathModel = "application/models/";
+    private static $pathMigration = "application/migrations/";
 
     public static function existParameter($argv)
     {
@@ -25,6 +28,86 @@ class SCli
             echo "Missing parameter\n";
             exit();
         }
+    }
+
+    public static function createMigration($argv)
+    {
+        if (!isset($argv[2])) {
+            echo "Missing Migration name\n";
+            exit();
+        }
+
+        if (!file_exists(self::$pathMigration)) {
+            mkdir(self::$pathMigration, 0777, true);
+        }
+
+        $typeMigration = "t";
+
+        if ((isset($argv[2])) && ($argv[2] == "s" || $argv[2] == "t")) {
+            $typeMigration = $argv[2];
+            array_splice($argv, 2, 1);
+        }
+
+        $nameMigration = $argv[2];
+        $nameWithoutCounter = ucfirst($argv[2]);
+
+        if ($typeMigration == "s") {
+            $files = scandir(self::$pathMigration);
+            $lastFile = end($files);
+
+            $lastFile = explode("_", $lastFile);
+            
+            $counter = $lastFile[0] + 1;
+
+            if (strlen($counter) == 1) $counter = "00" . $counter;
+            if (strlen($counter) == 2) $counter = "0" . $counter;
+            
+            $nameMigration = $counter . "_" . $argv[2] . ".php";
+        } else {
+            $nameMigration = date('YmdHms') . "_" . $argv[2] . ".php";
+        }
+
+        $txtAttributes = "";
+        $txtAttributesDown = "";
+        if (isset($argv[3])) {
+            $attributes = ltrim($argv[3], "[");
+            $attributes = rtrim($attributes, "]");
+            $attributes = explode(",", $attributes);
+
+            $txtAttributes = "        \$this->dbforge->add_field(array(\n";
+            $counterAttr = count($attributes) - 1;
+            for ($i = 0; $i <= $counterAttr; $i++) { 
+                if ($counterAttr == $i)
+                    $txtAttributes .= "            '".$attributes[$i]."'" . " => array()\n";
+                else
+                    $txtAttributes .= "            '".$attributes[$i]."'" . " => array(),\n";
+            }
+            $txtAttributes .= "        ));\n\n";
+            $txtAttributes .= "        \$this->dbforge->add_key('id', TRUE);\n";
+            $txtAttributes .= "        \$this->dbforge->create_table('YOUR_TABLE');\n";
+
+            $txtAttributesDown = "        \$this->dbforge->drop_table('YOUR_TABLE', TRUE);\n";
+        }
+
+        $newMigration = fopen(self::$pathMigration . $nameMigration, "w") or die("Unable to open file!");
+
+        $txt = "<?php\n";
+        $txt .= "defined('BASEPATH') OR exit('No direct script access allowed');\n\n";
+        $txt .= "class Migration_". $nameWithoutCounter ." extends CI_Migration {\n\n";
+        $txt .= "   public function up()\n";
+        $txt .= "   {\n";
+        $txt .=         $txtAttributes;
+        $txt .= "   }\n\n";
+        $txt .= "   public function down()\n";
+        $txt .= "   {\n";
+        $txt .=         $txtAttributesDown;
+        $txt .= "   }\n";
+        $txt .= "}";
+        
+        fwrite($newMigration, $txt);
+        fclose($newMigration);
+
+        echo "Migration created successfully.\n";
     }
 
     public static function createModel($argv)
