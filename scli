@@ -1,0 +1,92 @@
+#!/usr/bin/env php
+<?php
+SCli::existParameter($argv);
+
+if ($argv[1] == "controller" || $argv[1] == "c")
+    SCli::createController($argv);
+else if ($argv[1] == "model" || $argv[1] == "m")
+    SCli::createModel($argv);
+else if ($argv[1] == "cm") {
+    SCli::createController($argv);
+    SCli::createModel($argv);
+}
+else 
+    echo "Parameter not allowed\n";
+
+class SCli
+{   
+    private static $pathController = "application/controllers/";
+    private static $pathView = "application/views/";
+    private static $pathModel = "application/models/";
+
+    public static function existParameter($argv)
+    {
+        if (count($argv) == 1) {
+            echo "Missing parameter\n";
+            exit();
+        }
+    }
+
+    public static function createModel($argv)
+    {
+        if (!isset($argv[2])) {
+            echo "Missing Model name\n";
+            exit();
+        }
+
+        $nameModel = $argv[2];
+
+        $attributes = "";
+        for ($i = 3; $i < count($argv); $i++) { 
+            $attributes .= "   public \$" . $argv[$i] . ";\n";
+        }
+        if (!empty($attributes)) $attributes .= "\n";
+
+        $newModel = fopen(self::$pathModel.ucfirst($nameModel)."_model.php", "w") or die("Unable to open file!");
+
+        $txt = "<?php\n";
+        $txt .= "defined('BASEPATH') OR exit('No direct script access allowed');\n\n";
+        $txt .= "class ".ucfirst($nameModel)."_model"." extends CI_Model {\n\n";
+        $txt .= $attributes;
+        $txt .= "   public function __construct()\n";
+        $txt .= "   {\n";
+        $txt .= "       parent::__construct();\n";
+        $txt .= "   }\n";
+        $txt .= "}";
+        
+        fwrite($newModel, $txt);
+        fclose($newModel);
+
+        echo "Model created successfully.\n";
+    }
+
+    public static function createController($argv)
+    {
+        if (!isset($argv[2])) {
+            echo "Missing Controller name\n";
+            exit();
+        }
+            
+        $nameController = $argv[2];
+        $extends = "CI_Controller";
+        
+        if (isset($argv[3]))
+            $extends = $argv[3];
+
+        $newController = fopen(self::$pathController.ucfirst($nameController).".php", "w") or die("Unable to open file!");
+
+        $txt = "<?php\n";
+        $txt .= "defined('BASEPATH') OR exit('No direct script access allowed');\n\n";
+        $txt .= "class ".ucfirst($nameController)." extends ".$extends." {\n\n";
+        $txt .= "   public function index()\n";
+        $txt .= "   {\n";
+        $txt .= "       \$this->load->view('welcome_message');  \n";
+        $txt .= "   }\n";
+        $txt .= "}";
+        
+        fwrite($newController, $txt);
+        fclose($newController);
+     
+        echo "Controller created successfully.\n";
+    }
+}
