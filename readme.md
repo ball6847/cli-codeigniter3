@@ -3,8 +3,9 @@ A simple command line interface for the framework CodeIgniter 3.
 
 ### Features
 - Create Controller
-- Creates Model
+- Create Model
 - Create Migration (*sequential or timestamp*)
+- Run Migration
 
 ### Installation
 **First**!
@@ -90,6 +91,24 @@ class Migration_Create_tbl_customers extends CI_Migration {
 }
 ```
 
+### Running Migration
+Run last migration
+```sh
+$ php scli migrate
+```
+or
+```sh
+$ php scli do:migrate
+```
+
+Run a specific version of the migration
+```sh
+$ php scli migrate value (sequential or timestamp)
+```
+or
+```sh
+$ php scli do:migrate value (sequential or timestamp)
+```
 ### License
 
 

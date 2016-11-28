@@ -12,6 +12,10 @@ else if ($argv[1] == "cm") {
 }
 else if ($argv[1] == "mi" || $argv[1] == "migration")
     SCli::createMigration($argv);
+else if ($argv[1] == "migrate" ||$argv[1] == "do:migrate")
+    SCli::migrate($argv);
+else if ($argv[1] == "help" || $argv[1] == "h")
+    SCli::help();
 else 
     echo "Parameter not allowed\n";
 
@@ -21,12 +25,95 @@ class SCli
     private static $pathView = "application/views/";
     private static $pathModel = "application/models/";
     private static $pathMigration = "application/migrations/";
+    private static $scliMigrate = "Sclimigrate";
 
     public static function existParameter($argv)
     {
         if (count($argv) == 1) {
             echo "Missing parameter\n";
             exit();
+        }
+    }
+
+    public static function help()
+    {
+        $help = "\n***********************************\n";
+        $help .= "Available commands\n\n";
+        $help .= "- Create Controller\n";
+        $help .= "  \$ php scli c name_your_controller\n";
+        $help .= "    or\n";
+        $help .= "  \$ php scli controller name_your_controller\n\n";
+        $help .= "- Create Model\n";
+        $help .= "  \$ php scli m name_your_model\n";
+        $help .= "    or\n";
+        $help .= "  \$ php scli model name_your_model\n\n";
+        $help .= "- Create Migration\n";
+        $help .= "  \$ php scli mi name_your_migration\n";
+        $help .= "    or\n";
+        $help .= "  \$ php scli migration name_your_migration\n\n";
+        $help .= "- Run last migration\n";
+        $help .= "  \$ php scli migrate\n";
+        $help .= "    or\n";
+        $help .= "  \$ php scli do:migrate\n\n";
+        $help .= "- Run a specific version of the migration\n";
+        $help .= "  \$ php scli migrate value (sequential or timestamp)\n";
+        $help .= "    or\n";
+        $help .= "  \$ php scli do:migrate value (sequential or timestamp)\n";
+        $help .= "\n***********************************\n";
+
+        echo $help;
+    }
+
+    private static function fileSCliMigrateExist() {
+        if (!file_exists(self::$pathController.self::$scliMigrate.".php")) {
+            $fileMigrate = fopen(self::$pathController . self::$scliMigrate . ".php", "w") or die("Unable to open file!");
+
+            $txt = "<?php\n";
+            $txt .= "defined('BASEPATH') OR exit('No direct script access allowed');\n\n";
+            $txt .= "class ". self::$scliMigrate ." extends CI_Controller {\n\n";
+            $txt .= "   public function index(\$version = null)\n";
+            $txt .= "   {\n";
+            $txt .= "       \$this->load->library('migration');\n\n";
+            $txt .= "       if (\$version != null) \n";
+            $txt .= "       {\n";
+            $txt .= "           if(!\$this->migration->version(\$version))\n";
+            $txt .= "           {\n";
+            $txt .= "               echo \$this->migration->error_string();\n";
+            $txt .= "           }\n";
+            $txt .= "           else\n";
+            $txt .= "           {\n";
+            $txt .= "               echo 'Successful Migration! - Version: ' . \$version;\n";
+            $txt .= "           }\n";
+            $txt .= "       }\n";
+            $txt .= "       else\n";
+            $txt .= "       {\n";
+            $txt .= "           if(!\$this->migration->latest())\n";
+            $txt .= "           {\n";
+            $txt .= "               echo \$this->migration->error_string();\n";
+            $txt .= "           }\n";
+            $txt .= "           else\n";
+            $txt .= "           {\n";
+            $txt .= "               echo 'Successful Migration!';\n";
+            $txt .= "           }\n";
+            $txt .= "       }\n";
+            $txt .= "   }\n";
+            $txt .= "}";
+            
+            fwrite($fileMigrate, $txt);
+            fclose($fileMigrate);
+        }
+    }
+
+    public static function migrate($argv)
+    {
+        self::fileSCliMigrateExist();
+
+        if (isset($argv[2])) {
+            $output = shell_exec("php index.php ". self::$scliMigrate ." index " . $argv[2]);
+            echo $output . "\n";
+        } else {
+            $output = shell_exec("php index.php ". self::$scliMigrate ." index");
+            echo $output . "\n";
         }
     }
 
