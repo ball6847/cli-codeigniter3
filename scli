@@ -37,29 +37,35 @@ class SCli
 
     public static function help()
     {
-        $help = "\n***********************************\n";
-        $help .= "Available commands\n\n";
-        $help .= "- Create Controller\n";
-        $help .= "  \$ php scli c name_your_controller\n";
-        $help .= "    or\n";
-        $help .= "  \$ php scli controller name_your_controller\n\n";
-        $help .= "- Create Model\n";
-        $help .= "  \$ php scli m name_your_model\n";
-        $help .= "    or\n";
-        $help .= "  \$ php scli model name_your_model\n\n";
-        $help .= "- Create Migration\n";
-        $help .= "  \$ php scli mi name_your_migration\n";
-        $help .= "    or\n";
-        $help .= "  \$ php scli migration name_your_migration\n\n";
-        $help .= "- Run last migration\n";
-        $help .= "  \$ php scli migrate\n";
-        $help .= "    or\n";
-        $help .= "  \$ php scli do:migrate\n\n";
-        $help .= "- Run a specific version of the migration\n";
-        $help .= "  \$ php scli migrate value (sequential or timestamp)\n";
-        $help .= "    or\n";
-        $help .= "  \$ php scli do:migrate value (sequential or timestamp)\n";
-        $help .= "\n***********************************\n";
+        $help = <<<HEREDOC
+---------------------------------------------------------------------------*
+                      Available commands                                   |
+---------------------------------------------------------------------------*
+ - Create Controller      | scli controller controller_name                |
+---------------------------------------------------------------------------*
+ - Create Model           | scli model name_your_model                     |
+---------------------------------------------------------------------------*
+ - Create Migration       | scli migration name_your_migration             |
+---------------------------------------------------------------------------*
+                        TASKS                                              |
+---------------------------------------------------------------------------*
+ - Run last migration     | scli migrate                                   |
+---------------------------------------------------------------------------*
+ - Run a specific version | scli migrate value (sequential or timestamp)   |
+---------------------------------------------------------------------------*
+                        ALIASES                                            |
+---------------------------------------------------------------------------*
+ - Create Controller      | scli c controller_name                         |
+---------------------------------------------------------------------------*
+ - Create Model           | scli m name_your_model                         |
+---------------------------------------------------------------------------*
+ - Create Migration       | scli mi name_your_migration                    |
+---------------------------------------------------------------------------*
+ - Run last migration     | scli do:migrate                                | 
+---------------------------------------------------------------------------*
+ - Run last migration     | scli do:migrate value (sequential or timestamp)|
+---------------------------------------------------------------------------*\n
+HEREDOC;
 
         echo $help;
     }
