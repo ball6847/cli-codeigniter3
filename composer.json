@@ -3,6 +3,6 @@
     "description": "Simple Cli CodeIgniter 3",
     "require": {},
     "bin": [
-        "bin/scli"
+        "scli"
     ]
 }
