@@ -1,0 +1,8 @@
+{
+    "name": "ronaldaraujo/cli-codeigniter3",
+    "description": "Simple Cli CodeIgniter 3",
+    "require": {},
+    "bin": [
+        "scli"
+    ]
+}
